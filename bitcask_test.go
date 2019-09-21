@@ -1861,6 +1861,61 @@ func TestScan(t *testing.T) {
 	})
 }
 
+func TestRange(t *testing.T) {
+	assert := assert.New(t)
+
+	testdir, err := ioutil.TempDir("", "bitcask")
+	assert.NoError(err)
+
+	var db *Bitcask
+
+	t.Run("Setup", func(t *testing.T) {
+		t.Run("Open", func(t *testing.T) {
+			db, err = Open(testdir)
+			assert.NoError(err)
+		})
+
+		t.Run("Put", func(t *testing.T) {
+			for i := 1; i < 10; i++ {
+				key := []byte(fmt.Sprintf("foo_%d", i))
+				val := []byte(fmt.Sprintf("%d", i))
+				err = db.Put(key, val)
+				assert.NoError(err)
+			}
+		})
+	})
+
+	t.Run("Range", func(t *testing.T) {
+		var (
+			vals     [][]byte
+			expected = [][]byte{
+				[]byte("3"),
+				[]byte("4"),
+				[]byte("5"),
+				[]byte("6"),
+				[]byte("7"),
+			}
+		)
+
+		err = db.Range([]byte("foo_3"), []byte("foo_7"), func(key []byte) error {
+			val, err := db.Get(key)
+			assert.NoError(err)
+			vals = append(vals, val)
+			return nil
+		})
+		vals = SortByteArrays(vals)
+		assert.Equal(expected, vals)
+	})
+
+	t.Run("RangeErrors", func(t *testing.T) {
+		err = db.Range([]byte("foo_3"), []byte("foo_7"), func(key []byte) error {
+			return ErrMockError
+		})
+		assert.Error(err)
+		assert.Equal(ErrMockError, err)
+	})
+}
+
 func TestLocking(t *testing.T) {
 	assert := assert.New(t)
 

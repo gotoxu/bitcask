@@ -1,6 +1,7 @@
 package bitcask
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"hash/crc32"
@@ -381,6 +382,24 @@ func (b *Bitcask) ScanSift(prefix []byte, f func(key []byte) (bool, error)) (err
 	keysToDelete.ForEach(func(node art.Node) (cont bool) {
 		b.delete(node.Key())
 		return true
+	})
+	return
+}
+
+// Range performs a range scan of keys matching a range of keys between the
+// start key and end key and calling the function `f` with the keys found.
+// If the function returns an error no further keys are processed and the
+// first error returned.
+func (b *Bitcask) Range(start, end []byte, f func(key []byte) error) (err error) {
+	b.trie.ForEach(func(node art.Node) bool {
+		if bytes.Compare(node.Key(), start) >= 0 && bytes.Compare(node.Key(), end) <= 0 {
+			if err = f(node.Key()); err != nil {
+				return false
+			}
+			return true
+		} else {
+			return false
+		}
 	})
 	return
 }
