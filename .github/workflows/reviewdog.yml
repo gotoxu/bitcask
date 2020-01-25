@@ -1,22 +1,12 @@
 name: reviewdog
 on: [pull_request]
 jobs:
-  remark-lint:
-    name: runner / remark-lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: remark-lint
-        uses: prologic/action-remark-lint@v0.0.5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
   markdownlint:
     name: runner / markdownlint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: markdownlint-github-pr-check
-        uses: prologic/action-markdownlint@v0
+      - uses: prologic/action-markdownlint@v0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-check
