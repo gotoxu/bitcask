@@ -10,3 +10,13 @@ jobs:
         uses: prologic/action-remark-lint@v0.0.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  markdownlint:
+    name: runner / markdownlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: markdownlint-github-pr-check
+        uses: chick-p/action-markdownlint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-check
