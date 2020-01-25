@@ -7,6 +7,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: remark-lint
-        uses: prologic/action-remark-lint@v0.0.2
+        uses: prologic/action-remark-lint@v0.0.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
