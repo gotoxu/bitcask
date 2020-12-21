@@ -1648,6 +1648,35 @@ func TestLockingAfterMerge(t *testing.T) {
 	assert.Error(err)
 }
 
+func TestLFU(t *testing.T) {
+	assert := assert.New(t)
+
+	testdir, err := ioutil.TempDir("", "bitcask")
+	assert.NoError(err)
+
+	db, err := Open(testdir)
+	assert.NoError(err)
+	defer db.Close()
+
+	_, err = Open(testdir)
+	assert.Error(err)
+
+	// LFU size of 250
+	for i := 0; i < 1000; i++ {
+		key := []byte(string(i))
+		value := []byte(string(i))
+		err = db.Put(key, value)
+		assert.NoError(err)
+	}
+
+	for i := 0; i < 1000; i++ {
+		key := []byte(string(i))
+		val, err := db.Get(key)
+		assert.NoError(err)
+		assert.Equal([]byte(string(i)), val)
+	}
+}
+
 type benchmarkTestCase struct {
 	name string
 	size int

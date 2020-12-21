@@ -25,6 +25,7 @@ var (
 type Datafile interface {
 	FileID() int
 	Name() string
+	Open() error
 	Close() error
 	Sync() error
 	Size() int64
@@ -95,6 +96,22 @@ func NewDatafile(path string, id int, readonly bool, maxKeySize uint32, maxValue
 		maxKeySize:   maxKeySize,
 		maxValueSize: maxValueSize,
 	}, nil
+}
+
+func (df *datafile) Open() error {
+	var err error
+
+	df.r, err = os.Open(df.Name())
+	if err != nil {
+		return err
+	}
+
+	df.ra, err = mmap.Open(df.Name())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (df *datafile) FileID() int {

@@ -3,6 +3,7 @@ module github.com/prologic/bitcask
 go 1.13
 
 require (
+	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/plar/go-adaptive-radix-tree v1.0.4
@@ -16,6 +17,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/redcon v1.4.0
+	github.com/vektra/mockery v1.1.2 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527
 	gopkg.in/ini.v1 v1.53.0 // indirect

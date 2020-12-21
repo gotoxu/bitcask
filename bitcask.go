@@ -12,6 +12,7 @@ import (
 	"sort"
 	"sync"
 
+	gcache "github.com/bluele/gcache"
 	art "github.com/plar/go-adaptive-radix-tree"
 	"github.com/prologic/bitcask/flock"
 	"github.com/prologic/bitcask/internal"
@@ -71,6 +72,7 @@ type Bitcask struct {
 	indexer   index.Indexer
 	metadata  *metadata.MetaData
 	isMerging bool
+	gc        gcache.Cache
 }
 
 // Stats is a struct returned by Stats() on an open Bitcask instance
@@ -163,6 +165,12 @@ func (b *Bitcask) get(key []byte) ([]byte, error) {
 		df = b.curr
 	} else {
 		df = b.datafiles[item.FileID]
+
+		// reopen file and add to lfu
+		if !b.gc.Has(item.FileID) {
+			df.Open()
+			b.gc.Set(item.FileID, df)
+		}
 	}
 
 	e, err := df.ReadAt(item.Offset, item.Size)
@@ -337,6 +345,7 @@ func (b *Bitcask) put(key, value []byte) (int64, int64, error) {
 		}
 
 		b.datafiles[id] = df
+		b.gc.Set(id, df)
 
 		id = b.curr.FileID() + 1
 		curr, err := data.NewDatafile(b.path, id, false, b.config.MaxKeySize, b.config.MaxValueSize, b.config.FileFileModeBeforeUmask)
@@ -568,6 +577,11 @@ func Open(path string, options ...Option) (*Bitcask, error) {
 		return nil, err
 	}
 
+	gc := gcache.New(250).LFU().EvictedFunc(func(key, value interface{}) {
+		datafile := value.(data.Datafile)
+		datafile.Close()
+	}).Build()
+
 	bitcask := &Bitcask{
 		Flock:    flock.New(filepath.Join(path, lockfile)),
 		config:   cfg,
@@ -575,6 +589,7 @@ func Open(path string, options ...Option) (*Bitcask, error) {
 		path:     path,
 		indexer:  index.NewIndexer(),
 		metadata: meta,
+		gc:       gc,
 	}
 
 	locked, err := bitcask.Flock.TryLock()
