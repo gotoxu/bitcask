@@ -53,7 +53,7 @@ func _range(path, start, end string) int {
 		return nil
 	})
 	if err != nil {
-		log.WithError(err).Error("error rangening keys")
+		log.WithError(err).Error("error ranging over keys")
 		return 1
 	}
 

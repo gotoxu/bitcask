@@ -59,6 +59,7 @@ var (
 	// (typically opened by another process)
 	ErrDatabaseLocked = errors.New("error: database locked")
 
+	ErrInvalidRange   = errors.New("error: invalid range")
 	ErrInvalidVersion = errors.New("error: invalid db version")
 
 	// ErrMergeInProgress is the error returned if merge is called when already a merge
@@ -391,15 +392,18 @@ func (b *Bitcask) ScanSift(prefix []byte, f func(key []byte) (bool, error)) (err
 // If the function returns an error no further keys are processed and the
 // first error returned.
 func (b *Bitcask) Range(start, end []byte, f func(key []byte) error) (err error) {
+	if bytes.Compare(start, end) == 1 {
+		return ErrInvalidRange
+	}
+
 	b.trie.ForEach(func(node art.Node) bool {
 		if bytes.Compare(node.Key(), start) >= 0 && bytes.Compare(node.Key(), end) <= 0 {
 			if err = f(node.Key()); err != nil {
 				return false
 			}
 			return true
-		} else {
-			return false
 		}
+		return false
 	})
 	return
 }

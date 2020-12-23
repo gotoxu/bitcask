@@ -1914,6 +1914,14 @@ func TestRange(t *testing.T) {
 		assert.Error(err)
 		assert.Equal(ErrMockError, err)
 	})
+
+	t.Run("InvalidRange", func(t *testing.T) {
+		err = db.Range([]byte("foo_3"), []byte("foo_1"), func(key []byte) error {
+			return nil
+		})
+		assert.Error(err)
+		assert.Equal(ErrInvalidRange, err)
+	})
 }
 
 func TestLocking(t *testing.T) {
