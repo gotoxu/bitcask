@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gofrs/flock"
 	art "github.com/plar/go-adaptive-radix-tree"
-	"github.com/prologic/bitcask/flock"
 	"github.com/prologic/bitcask/internal"
 	"github.com/prologic/bitcask/internal/config"
 	"github.com/prologic/bitcask/internal/data"
@@ -68,10 +68,8 @@ var (
 // and in-memory hash of key/value pairs as per the Bitcask paper and seen
 // in the Riak database.
 type Bitcask struct {
-	mu sync.RWMutex
-
-	*flock.Flock
-
+	mu         sync.RWMutex
+	flock      *flock.Flock
 	config     *config.Config
 	options    []Option
 	path       string
@@ -114,7 +112,7 @@ func (b *Bitcask) Close() error {
 	b.mu.RLock()
 	defer func() {
 		b.mu.RUnlock()
-		b.Flock.Unlock()
+		b.flock.Unlock()
 	}()
 
 	return b.close()
@@ -640,7 +638,7 @@ func Open(path string, options ...Option) (*Bitcask, error) {
 	}
 
 	bitcask := &Bitcask{
-		Flock:      flock.New(filepath.Join(path, lockfile)),
+		flock:      flock.New(filepath.Join(path, lockfile)),
 		config:     cfg,
 		options:    options,
 		path:       path,
@@ -649,12 +647,12 @@ func Open(path string, options ...Option) (*Bitcask, error) {
 		metadata:   meta,
 	}
 
-	locked, err := bitcask.Flock.TryLock()
+	ok, err := bitcask.flock.TryLock()
 	if err != nil {
 		return nil, err
 	}
 
-	if !locked {
+	if !ok {
 		return nil, ErrDatabaseLocked
 	}
 
