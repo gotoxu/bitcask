@@ -9,9 +9,9 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/viper v1.8.1
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/redcon v1.4.0
+	github.com/tidwall/redcon v1.4.1
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85
 )
