@@ -668,6 +668,10 @@ func (b *Bitcask) Merge() error {
 		return err
 	}
 	for _, file := range files {
+		// see #225
+		if file.Name() == lockfile {
+			continue
+		}
 		err := os.Rename(
 			path.Join([]string{mdb.path, file.Name()}...),
 			path.Join([]string{b.path, file.Name()}...),
