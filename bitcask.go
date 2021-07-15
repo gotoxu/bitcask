@@ -13,7 +13,10 @@ import (
 	"sync"
 	"time"
 
-	"git.mills.io/prologic/bitcask/flock"
+	"github.com/gofrs/flock"
+	art "github.com/plar/go-adaptive-radix-tree"
+	log "github.com/sirupsen/logrus"
+
 	"git.mills.io/prologic/bitcask/internal"
 	"git.mills.io/prologic/bitcask/internal/config"
 	"git.mills.io/prologic/bitcask/internal/data"
@@ -21,9 +24,6 @@ import (
 	"git.mills.io/prologic/bitcask/internal/index"
 	"git.mills.io/prologic/bitcask/internal/metadata"
 	"git.mills.io/prologic/bitcask/scripts/migrations"
-	"github.com/gofrs/flock"
-	art "github.com/plar/go-adaptive-radix-tree"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
