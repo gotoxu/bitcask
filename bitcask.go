@@ -349,21 +349,22 @@ func (b *Bitcask) RunGC() error {
 // runGC deletes all keys that are expired
 // caller function should take care of the locking when calling this method
 func (b *Bitcask) runGC() (err error) {
-	keysToDelete := [][]byte{}
+	keysToDelete := art.New()
 
 	b.ttlIndex.ForEach(func(node art.Node) (cont bool) {
 		if !b.isExpired(node.Key()) {
+			// later, return false here when the ttlIndex is sorted
 			return true
 		}
-		keysToDelete = append(keysToDelete, node.Key())
+		keysToDelete.Insert(node.Key(), true)
+		//keysToDelete = append(keysToDelete, node.Key())
 		return true
 	})
 
-	for _, key := range keysToDelete {
-		if err := b.delete(key); err != nil {
-			return err
-		}
-	}
+	keysToDelete.ForEach(func(node art.Node) (cont bool) {
+		b.delete(node.Key())
+		return true
+	})
 
 	return nil
 }

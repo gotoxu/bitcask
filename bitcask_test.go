@@ -1801,6 +1801,8 @@ func TestRunGCDeletesAllExpired(t *testing.T) {
 
 	// Add a node that expires almost immediately to the tree
 	db.PutWithTTL([]byte("shortLived"), []byte("shortLived"), 0)
+	db.PutWithTTL([]byte("longLived"), []byte("longLived"), time.Hour)
+	db.PutWithTTL([]byte("longLived2"), []byte("longLived2"), time.Hour)
 	db.PutWithTTL([]byte("shortLived2"), []byte("shortLived2"), 0)
 	db.PutWithTTL([]byte("shortLived3"), []byte("shortLived3"), 0)
 	db.Put([]byte("static2"), []byte("static2"))
