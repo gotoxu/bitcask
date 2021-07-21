@@ -3,7 +3,6 @@ package bitcask
 import (
 	"bytes"
 	"errors"
-	"log"
 )
 
 func (b *Bitcask) List(key []byte) *List {
@@ -131,22 +130,16 @@ func (l *List) rangeIndex() (int64, int64, error) {
 	if err != nil {
 		return 0, -1, err
 	}
-	log.Printf("left: %d\n", left)
-	log.Printf("right: %d\n", right)
 	return left, right, nil
 }
 
 func (l *List) leftIndex() (int64, error) {
-	log.Println("leftIndex:")
 	idx := int64(0) // default 0
 	prefix := l.keyPrefix()
-	log.Printf(" prefix: %s\n", prefix)
 	ErrStopIteration := errors.New("err: stop iteration")
 	err := l.db.Scan(prefix, func(key []byte) error {
-		log.Printf(" key: %v\n", key)
 		if bytes.HasPrefix(key, prefix) {
 			idx = l.indexInKey(key)
-			log.Printf("  idx: %d\n", idx)
 		}
 		return ErrStopIteration
 	})
@@ -157,15 +150,11 @@ func (l *List) leftIndex() (int64, error) {
 }
 
 func (l *List) rightIndex() (int64, error) {
-	log.Println("rightIndex:")
 	idx := int64(-1) // default -1
 	prefix := l.keyPrefix()
-	log.Printf(" prefix: %s\n", prefix)
 	err := l.db.Scan(prefix, func(key []byte) error {
-		log.Printf(" key: %v\n", key)
 		if bytes.HasPrefix(key, prefix) {
 			idx = l.indexInKey(key)
-			log.Printf(" idx: %d\n", idx)
 		}
 		return nil
 	})
@@ -189,7 +178,6 @@ func (l *List) indexKey(i int64) []byte {
 		sign = []byte{1}
 	}
 	b := bytes.Join([][]byte{l.keyPrefix(), sign, itob(i)}, nil)
-	log.Printf("indexKeu: %x\n", b)
 	return b
 }
 
