@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/abcum/lcp"
 	"github.com/gofrs/flock"
 	art "github.com/plar/go-adaptive-radix-tree"
 	log "github.com/sirupsen/logrus"
@@ -396,14 +397,19 @@ func (b *Bitcask) Range(start, end []byte, f func(key []byte) error) (err error)
 		return ErrInvalidRange
 	}
 
-	b.trie.ForEach(func(node art.Node) bool {
+	commonPrefix := lcp.LCP(start, end)
+	if commonPrefix == nil {
+		return ErrInvalidRange
+	}
+
+	b.trie.ForEachPrefix(commonPrefix, func(node art.Node) bool {
 		if bytes.Compare(node.Key(), start) >= 0 && bytes.Compare(node.Key(), end) <= 0 {
 			if err = f(node.Key()); err != nil {
 				return false
 			}
 			return true
 		}
-		return false
+		return true
 	})
 	return
 }
