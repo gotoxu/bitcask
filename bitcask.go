@@ -411,7 +411,7 @@ func (b *Bitcask) Range(start, end []byte, f func(key []byte) error) (err error)
 				return false
 			}
 			return true
-		} else if bytes.Compare(node.Key(), end) <= 0 {
+		} else if bytes.Compare(node.Key(), start) >= 0 && bytes.Compare(node.Key(), end) > 0 {
 			return false
 		}
 		return true
