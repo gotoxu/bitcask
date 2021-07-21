@@ -402,12 +402,17 @@ func (b *Bitcask) Range(start, end []byte, f func(key []byte) error) (err error)
 		return ErrInvalidRange
 	}
 
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
 	b.trie.ForEachPrefix(commonPrefix, func(node art.Node) bool {
 		if bytes.Compare(node.Key(), start) >= 0 && bytes.Compare(node.Key(), end) <= 0 {
 			if err = f(node.Key()); err != nil {
 				return false
 			}
 			return true
+		} else if bytes.Compare(node.Key(), end) <= 0 {
+			return false
 		}
 		return true
 	})
