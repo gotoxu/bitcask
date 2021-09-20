@@ -11,12 +11,12 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	"sync"
 	"time"
 
 	"github.com/abcum/lcp"
 	"github.com/gofrs/flock"
 	art "github.com/plar/go-adaptive-radix-tree"
+	"github.com/sasha-s/go-deadlock"
 	log "github.com/sirupsen/logrus"
 
 	"git.mills.io/prologic/bitcask/internal"
@@ -72,7 +72,7 @@ var (
 // and in-memory hash of key/value pairs as per the Bitcask paper and seen
 // in the Riak database.
 type Bitcask struct {
-	mu         sync.RWMutex
+	mu         deadlock.RWMutex
 	flock      *flock.Flock
 	config     *config.Config
 	options    []Option

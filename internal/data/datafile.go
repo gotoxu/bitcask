@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 
-	"github.com/pkg/errors"
 	"git.mills.io/prologic/bitcask/internal"
 	"git.mills.io/prologic/bitcask/internal/data/codec"
+	"github.com/pkg/errors"
+	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/exp/mmap"
 )
 
@@ -34,7 +34,7 @@ type Datafile interface {
 }
 
 type datafile struct {
-	sync.RWMutex
+	deadlock.RWMutex
 
 	id           int
 	r            *os.File
